@@ -15,10 +15,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "自救实验室 | 打工人自救指南",
-  description: "打工人自救实验室 - 一个帮助打工人找到自我救赎的地方",
+  title: "打工人自救实验室 - 离职决策体检",
+  description:
+    "基于 5 大维度的职场健康评估，测测你离「提桶」还有多远。",
 };
 
+/** 手机端禁止缩放，保持最佳手感 */
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
