@@ -54,7 +54,7 @@ export default function ResultPage({ answers, onRetry, onExit }: Props) {
   }, [score]);
 
   // 分享报告：复制链接到剪贴板并 toast 提示
-  const shareUrl = "https://saveniuma.org";
+  const shareUrl = "www.saveniuma.org";
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
