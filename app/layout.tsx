@@ -96,6 +96,14 @@ export default function RootLayout({
         >
           {children}
         </main>
+
+        {/* 底部免责声明 */}
+        <footer className="pt-6 pb-8 px-4 text-center">
+          <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
+            本工具仅作为职场压力参考，不构成任何法律、财务或职业生涯建议。
+          </p>
+        </footer>
+
         <Analytics />
       </body>
     </html>
