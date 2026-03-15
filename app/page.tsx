@@ -180,9 +180,6 @@ function ComingSoonCard() {
         <h2 style={{ fontSize: "20px", fontWeight: 800, color: "#A1887F", margin: 0, lineHeight: 1.3 }}>
           敬请期待
         </h2>
-        <p style={{ fontSize: "13px", color: "#BCAAA4", margin: "8px 0 0", lineHeight: 1.6 }}>
-          点击留言你想做的工具
-        </p>
       </div>
     </motion.div>
   );
