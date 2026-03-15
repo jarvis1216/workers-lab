@@ -53,38 +53,15 @@ export default function ResultPage({ answers, onRetry, onExit }: Props) {
     return () => cancelAnimationFrame(frame);
   }, [score]);
 
-  // 保存 / 分享报告
-  const handleSave = async () => {
-    const text = [
-      "━━━━━━━━━━━━━━━━━━",
-      "🏥 打工人健康诊断报告",
-      "自救实验室 · Workers Lab",
-      "━━━━━━━━━━━━━━━━━━",
-      `诊断编号：${diagnosisId.current}`,
-      `确诊日期：${diagnosisDate.current}`,
-      "━━━━━━━━━━━━━━━━━━",
-      `离职紧迫度评分：${score} / 100`,
-      `${level.emoji} 确诊结论：${level.title}`,
-      `（${level.subtitle}）`,
-      "━━━━━━━━━━━━━━━━━━",
-      "主治医生评语：",
-      level.commentary,
-      "━━━━━━━━━━━━━━━━━━",
-      `治疗建议：${level.suggestion}`,
-      "",
-      "来自《打工人自救实验室》",
-    ].join("\n");
-
+  // 分享报告：复制链接到剪贴板并 toast 提示
+  const shareUrl = "https://saveniuma.org";
+  const handleShare = async () => {
     try {
-      if (navigator.share) {
-        await navigator.share({ title: "我的离职诊断报告", text });
-      } else {
-        await navigator.clipboard.writeText(text);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2500);
-      }
+      await navigator.clipboard.writeText(shareUrl);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
     } catch {
-      // user cancelled or clipboard error
+      // clipboard error
     }
   };
 
@@ -309,11 +286,11 @@ export default function ResultPage({ answers, onRetry, onExit }: Props) {
         transition={{ delay: 0.55, duration: 0.35 }}
         style={{ display: "flex", flexDirection: "column", gap: "12px" }}
       >
-        {/* 保存报告 */}
+        {/* 分享报告：复制链接到剪贴板 */}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
-          onClick={handleSave}
+          onClick={handleShare}
           style={{
             width: "100%",
             background: saved
@@ -331,7 +308,7 @@ export default function ResultPage({ answers, onRetry, onExit }: Props) {
             transition: "background 0.3s",
           }}
         >
-          {saved ? "✅ 已复制到剪贴板！" : "📋 保存我的确诊报告"}
+          {saved ? "✅ 链接已复制到剪切板，赶紧去分享吧" : "📤 分享我的确诊报告"}
         </motion.button>
 
         {/* 再测一次 */}
