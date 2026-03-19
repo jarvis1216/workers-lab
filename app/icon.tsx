@@ -1,27 +1,16 @@
-import { ImageResponse } from "next/og";
+export const contentType = "image/svg+xml";
 
-export const size = { width: 32, height: 32 };
-export const contentType = "image/png";
-
+/**
+ * 用纯 SVG 生成 Emoji 图标，避免 next/og 在构建期拉取外部字体资源。
+ */
 export default function Icon() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#FFFFFF",
-          borderRadius: "6px",
-          fontSize: 22,
-          lineHeight: 1,
-        }}
-      >
-        🧪
-      </div>
-    ),
-    { ...size }
-  );
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32">
+  <rect x="0" y="0" width="32" height="32" rx="7" fill="#FFFFFF" />
+  <text x="16" y="21" text-anchor="middle" font-size="18">🧪</text>
+</svg>`.trim();
+
+  return new Response(svg, {
+    headers: { "Content-Type": contentType },
+  });
 }

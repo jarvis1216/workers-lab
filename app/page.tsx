@@ -47,7 +47,7 @@ function ActiveCard({ onStart }: { onStart: () => void }) {
 
       <div>
         <h2 style={{ fontSize: "20px", fontWeight: 800, color: "#5D4037", margin: 0, lineHeight: 1.3 }}>
-          离职决策器
+          离职决策器V2.0
         </h2>
         <p style={{ fontSize: "13px", color: "#A1887F", margin: "6px 0 0" }}>
           1.2w 人已确诊

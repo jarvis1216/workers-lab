@@ -1,13 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { SelectionQuestion } from "./types";
+import type { BranchSelectorQuestion, SelectQuestion } from "./types";
 
 interface Props {
-  question: SelectionQuestion;
-  selected: string | undefined;
+  question: BranchSelectorQuestion | SelectQuestion;
+  selected: string | undefined; // option.value
   /** 点击选项后立即触发（外部负责自动跳题） */
-  onSelect: (optionId: string) => void;
+  onSelect: (value: string) => void;
 }
 
 export default function SelectionCard({ question, selected, onSelect }: Props) {
@@ -23,26 +23,21 @@ export default function SelectionCard({ question, selected, onSelect }: Props) {
           letterSpacing: "-0.01em",
         }}
       >
-        {question.title}
+        {question.text}
       </h2>
-      {question.subtitle && (
-        <p style={{ fontSize: "17px", fontWeight: 600, color: "#A1887F", margin: "0 0 24px", lineHeight: 1.5 }}>
-          {question.subtitle}
-        </p>
-      )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         {question.options.map((opt, i) => {
-          const isSelected = selected === opt.id;
+          const isSelected = selected === opt.value;
           return (
             <motion.button
-              key={opt.id}
+              key={opt.value}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.06, duration: 0.3 }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => onSelect(opt.id)}
+              onClick={() => onSelect(opt.value)}
               style={{
                 background: isSelected
                   ? "linear-gradient(to right, #ff9a9e, #fad0c4)"
@@ -59,11 +54,9 @@ export default function SelectionCard({ question, selected, onSelect }: Props) {
                 transition: "background 0.2s, box-shadow 0.2s",
               }}
             >
-              {opt.emoji && (
-                <span style={{ fontSize: "24px", lineHeight: 1, flexShrink: 0 }}>
-                  {opt.emoji}
-                </span>
-              )}
+              <span style={{ fontSize: "20px", lineHeight: 1, flexShrink: 0 }}>
+                {isSelected ? "✅" : "⬜"}
+              </span>
               <span
                 style={{
                   fontSize: "15px",

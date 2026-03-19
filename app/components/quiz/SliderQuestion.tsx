@@ -1,27 +1,44 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { SliderQuestion as SliderQuestionType } from "./types";
+import type {
+  SliderQuestionContinuous,
+  SliderQuestionDiscrete,
+} from "./types";
 
 interface Props {
-  question: SliderQuestionType;
-  value: number | undefined;
-  onChange: (value: number) => void;
+  question: SliderQuestionContinuous | SliderQuestionDiscrete;
+  value: number | undefined; // continuous: slider value; discrete: index
+  onChange: (value: number) => void; // continuous: value; discrete: index
   onNext: () => void;
 }
 
-// 根据 1-10 数值返回对应的 emoji 表情
-function getValueEmoji(value: number): string {
-  if (value <= 2) return "😭";
-  if (value <= 4) return "😰";
-  if (value <= 6) return "😐";
-  if (value <= 8) return "🙂";
-  return "😄";
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
+}
+
+function formatNumber(n: number) {
+  return Number.isInteger(n) ? String(n) : n.toFixed(1);
+}
+
+function getQ4WorkHourCopy(hours: number) {
+  if (hours <= 4) return "神仙生活，公司是你家";
+  if (hours <= 9) return "标准打工人";
+  if (hours <= 14) return "透支预警";
+  return "这是在修仙还是在拼命？";
 }
 
 export default function SliderPanel({ question, value, onChange, onNext }: Props) {
-  const current = value ?? question.defaultValue;
-  const pct = ((current - question.min) / (question.max - question.min)) * 100;
+  const isDiscrete = question.type === "slider_discrete";
+
+  const min = isDiscrete ? 0 : question.min;
+  const max = isDiscrete ? question.options.length - 1 : question.max;
+  const step = isDiscrete ? 1 : (question.step ?? 1);
+  const defaultContinuous = isDiscrete ? min : (min + (max - min) * 0.5);
+  const current = clamp(value ?? (isDiscrete ? Math.floor((max + min) / 2) : defaultContinuous), min, max);
+
+  const pct = max === min ? 0 : ((current - min) / (max - min)) * 100;
+  const discreteLabel = isDiscrete ? question.options[current]?.label : undefined;
 
   return (
     <div style={{ padding: "24px 20px 40px" }}>
@@ -38,19 +55,8 @@ export default function SliderPanel({ question, value, onChange, onNext }: Props
           letterSpacing: "-0.01em",
         }}
       >
-        {question.title}
+        {question.text}
       </motion.h2>
-
-      {question.subtitle && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          style={{ fontSize: "17px", fontWeight: 600, color: "#A1887F", margin: "0 0 32px", lineHeight: 1.5 }}
-        >
-          {question.subtitle}
-        </motion.p>
-      )}
 
       {/* 当前值大图展示 */}
       <div style={{ textAlign: "center", marginBottom: "28px" }}>
@@ -61,9 +67,7 @@ export default function SliderPanel({ question, value, onChange, onNext }: Props
           transition={{ type: "spring", stiffness: 400, damping: 20 }}
           style={{ display: "inline-flex", alignItems: "center", gap: "12px" }}
         >
-          <span style={{ fontSize: "44px", lineHeight: 1 }}>
-            {getValueEmoji(current)}
-          </span>
+          <span style={{ fontSize: "40px", lineHeight: 1 }}>{isDiscrete ? "🧾" : "⏳"}</span>
           <span
           style={{
             fontSize: "52px",
@@ -72,12 +76,22 @@ export default function SliderPanel({ question, value, onChange, onNext }: Props
             lineHeight: 1,
           }}
           >
-            {current}
+            {isDiscrete ? current + 1 : formatNumber(current)}
           </span>
           <span style={{ fontSize: "20px", color: "#BCAAA4", fontWeight: 600 }}>
-            / {question.max}
+            / {isDiscrete ? (max + 1) : question.max}
           </span>
         </motion.div>
+        {isDiscrete && discreteLabel && (
+          <div style={{ marginTop: "10px", fontSize: "14px", color: "#A1887F", fontWeight: 600, lineHeight: 1.5 }}>
+            {discreteLabel}
+          </div>
+        )}
+        {!isDiscrete && question.id === "q4" && (
+          <div style={{ marginTop: "10px", fontSize: "14px", color: "#A1887F", fontWeight: 700, lineHeight: 1.5 }}>
+            {getQ4WorkHourCopy(current)}
+          </div>
+        )}
       </div>
 
       {/* 滑动条容器 */}
@@ -114,9 +128,9 @@ export default function SliderPanel({ question, value, onChange, onNext }: Props
         {/* 原生 input range，transparent 覆盖 */}
         <input
           type="range"
-          min={question.min}
-          max={question.max}
-          step={question.step}
+          min={min}
+          max={max}
+          step={step}
           value={current}
           onChange={(e) => onChange(Number(e.target.value))}
           style={{
@@ -129,21 +143,23 @@ export default function SliderPanel({ question, value, onChange, onNext }: Props
         />
       </div>
 
-      {/* 端点标签 */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          fontSize: "12px",
-          color: "#A1887F",
-          marginBottom: "36px",
-          fontWeight: 600,
-          lineHeight: 1.4,
-        }}
-      >
-        <span style={{ maxWidth: "42%", textAlign: "left" }}>{question.minLabel}</span>
-        <span style={{ maxWidth: "42%", textAlign: "right" }}>{question.maxLabel}</span>
-      </div>
+      {!isDiscrete && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            fontSize: "12px",
+            color: "#A1887F",
+            marginBottom: "36px",
+            fontWeight: 600,
+            lineHeight: 1.4,
+          }}
+        >
+          <span style={{ maxWidth: "42%", textAlign: "left" }}>{formatNumber(min)}h</span>
+          <span style={{ maxWidth: "42%", textAlign: "right" }}>{formatNumber(max)}h</span>
+        </div>
+      )}
+      {isDiscrete && <div style={{ height: "12px", marginBottom: "24px" }} />}
 
       {/* 下一题按钮：蜜桃粉渐变 */}
       <motion.button

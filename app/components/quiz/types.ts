@@ -1,51 +1,70 @@
 // ── 题目类型 ──────────────────────────────────────────────────────────────────
 
-/** 行业岗位选择（第 0 题专用） */
-export interface IndustryQuestion {
-  type: "industry";
-  id: string;
-  title: string;
-  subtitle?: string;
-  options: Array<{
-    id: string;
-    label: string;
-    emoji: string;
-  }>;
+export type BranchId = "big_tech" | "gov_state" | "agency" | "remote";
+export type BaselineTrackValue = "A" | "B" | "C" | "D";
+
+export type WeightMap = Record<string, number>;
+
+export interface QuizOption {
+  label: string;
+  value: string;
+  branch?: BranchId;
+  weight?: WeightMap;
 }
 
-/** 选项卡题（点击后自动跳转） */
-export interface SelectionQuestion {
-  type: "selection";
+export interface BaseQuestion {
   id: string;
-  title: string;
-  subtitle?: string;
-  options: Array<{
-    id: string;
-    label: string;
-    emoji?: string;
-    /** 该选项对应的分数权重，后续填入 */
-    score: number;
-  }>;
+  module?: string;
+  branch?: BranchId;
+  text: string;
 }
 
-/** 滑动条题（需点击"下一题"跳转） */
-export interface SliderQuestion {
+export interface BranchSelectorQuestion extends BaseQuestion {
+  type: "branch_selector";
+  options: QuizOption[];
+}
+
+export interface SelectQuestion extends BaseQuestion {
+  type: "select";
+  options: QuizOption[];
+}
+
+/**
+ * 连续滑动条（例如 Q4 工时 8-16）
+ * weightLogic: linear_loss 表示将 slider 值映射成某个 loss 维度权重
+ */
+export interface SliderQuestionContinuous extends BaseQuestion {
   type: "slider";
-  id: string;
-  title: string;
-  subtitle?: string;
   min: number;
   max: number;
-  step: number;
-  defaultValue: number;
-  minLabel: string;
-  maxLabel: string;
-  /** 将滑动值转为分数的函数，后续填入 */
-  scoreMapper: (value: number) => number;
+  step?: number;
+  weight_logic: "linear_loss";
 }
 
-export type Question = IndustryQuestion | SelectionQuestion | SliderQuestion;
+/**
+ * 离散滑动条（例如 Q11：4 档，带数值反馈）
+ * 用 slider 交互，但分值来自 options 的 weight。
+ */
+export interface SliderQuestionDiscrete extends BaseQuestion {
+  type: "slider_discrete";
+  options: QuizOption[];
+}
+
+export type Question =
+  | BranchSelectorQuestion
+  | SelectQuestion
+  | SliderQuestionContinuous
+  | SliderQuestionDiscrete;
 
 // ── 用户答案存储 ───────────────────────────────────────────────────────────────
 
 export type Answers = Record<string, string | number>;
+
+export interface QuizConfig {
+  version: string;
+  scoring_logic: {
+    gain_dimensions: string[];
+    loss_dimensions: string[];
+  };
+  questions: Question[];
+}

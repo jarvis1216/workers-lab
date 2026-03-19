@@ -18,9 +18,13 @@ export default function QuizHeader({ current, total, onBack }: QuizHeaderProps) 
         position: "sticky",
         top: "56px",
         zIndex: 40,
-        background: "transparent",
+        // 给第二层悬浮栏一个半透明底，避免题目内容视觉穿透造成“重合”
+        background: "rgba(255, 255, 255, 0.92)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
         padding: "10px 20px 8px",
         borderBottom: "1px solid rgba(150, 150, 200, 0.08)",
+        boxShadow: "0 6px 18px rgba(150, 150, 200, 0.08)",
       }}
     >
       {/* 返回按钮 + 题目计数 */}
